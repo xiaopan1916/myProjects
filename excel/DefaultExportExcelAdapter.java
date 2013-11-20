@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -56,15 +55,19 @@ public abstract class DefaultExportExcelAdapter<T> implements ExportExcelAware<T
                 DEFAULT_SHEET_NAME : (String) exportSession.get(SessionKey.SHEET_NAME);
         ExportExcelFactory exportExcelFactory = new ExportExcelFactory(sheetName);
 
-        // 表格名称
-        StringBuffer titleBuffer = new StringBuffer();
-        titleBuffer.append(exportSession.get(SessionKey.TITLE)).append("(导出时间：")
-                .append(DateUtil.formatDateTime()).append(")");
-
         //列头标题
         String[][] colTitles = (String[][]) exportSession.get(SessionKey.COL_TITLES);
         exportExcelFactory.setCols(colTitles[0].length);
-        exportExcelFactory.createCaption(titleBuffer.toString());
+
+        if (exportSession.get(SessionKey.TITLE) != null
+                && StringUtil.isNotBlank((String) exportSession.get(SessionKey.TITLE))) {
+            // 表格名称
+            StringBuffer titleBuffer = new StringBuffer();
+            titleBuffer.append(exportSession.get(SessionKey.TITLE)).append("(导出时间：")
+                    .append(DateUtil.formatDateTime()).append(")");
+            exportExcelFactory.createCaption(titleBuffer.toString());
+        }
+        // 列
         exportExcelFactory.createColCaption(colTitles);
 
         Object bodyData = exportSession.get(SessionKey.BODY_DATA);
@@ -125,7 +128,9 @@ public abstract class DefaultExportExcelAdapter<T> implements ExportExcelAware<T
      * @return
      */
     @Override
-    public abstract String initTitle();
+    public String initTitle() {
+        return null;
+    };
 
     /**
      * 获取导出Excel文件名称
@@ -133,11 +138,7 @@ public abstract class DefaultExportExcelAdapter<T> implements ExportExcelAware<T
      * @return
      */
     @Override
-    public String initFileName() {
-        StringBuffer fileName = new StringBuffer();
-        fileName.append(initTitle()).append("(").append(DateUtil.format(new Date(), "yyyyMMddHHmmss")).append(")");
-        return fileName.toString();
-    }
+    public abstract String initFileName();
 
     @Override
     public String initSheetName() {
@@ -245,11 +246,6 @@ public abstract class DefaultExportExcelAdapter<T> implements ExportExcelAware<T
      * 验证Session参数
      */
     protected void validExportSession() {
-
-        if (exportSession.get(SessionKey.TITLE) == null
-                || StringUtil.isBlank(String.valueOf(exportSession.get(SessionKey.TITLE)))) {
-            throw new RuntimeException("导出Excel业务， Excel表名称为空");
-        }
 
         if (exportSession.get(SessionKey.FILE_NAME) == null
                 || StringUtil.isBlank(String.valueOf(exportSession.get(SessionKey.FILE_NAME)))) {

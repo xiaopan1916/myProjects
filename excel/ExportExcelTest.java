@@ -10,33 +10,30 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
- * 功能描述：
+ * 功能描述：测试
  *
  * @author: Zhenbin.Li
  * email： zhenbin.li@okhqb.com
  * company：华强北在线
  * Date: 13-11-19 Time：下午8:47
  */
+ @Controller
 public class ExportExcelTest {
 
-    /**
+        /**
      * 导出库存列表
      *
      * @param response
      * @return
      */
-    @RequestMapping(value = "/invoicing/itemSkusWarehouse/exportItemSkusWarehouse.resource", method = RequestMethod.GET)
+    @RequestMapping(value = "/invoicing/itemSkusWarehouse/exportItemSkusWarehouse.resource",
+            method = RequestMethod.GET)
     public String exportItemSkusWarehouse(HttpServletResponse response) {
 
         final List<ItemSkuWarehouseExportDo> list = itemSkusWarehouseQueryBiz
                 .findItemSkuWarehouseStatisticsForExport().getItemSkuWarehouseExportDos();
 
         new DefaultExportExcelAdapter<ItemSkuWarehouseExportDo>() {
-
-            @Override
-            public String initTitle() {
-                return "库存列表";
-            }
 
             @Override
             public String[][] initColTitles() {
@@ -59,7 +56,7 @@ public class ExportExcelTest {
                         itemSkuWarehouseExportDoArray[5] = itemSkuWarehouseExportDo.getSubstandardWarehouse().toString();
                         itemSkuWarehouseExportDoArray[6] = itemSkuWarehouseExportDo.getDonationWarehouse().toString();
                         itemSkuWarehouseExportDoArray[7] = itemSkuWarehouseExportDo.getRegisterWarehouse().toString();
-                        itemSkuWarehouseExportDoArray[8] = NumberFormatUtil.formatForIgnoreZero(itemSkuWarehouseExportDo.getCostPrice(), 5);
+                        itemSkuWarehouseExportDoArray[8] = NumberFormatUtil.formatForIgnoreZero(itemSkuWarehouseExportDo.getCostPrice() , 5);
                         itemSkuWarehouseExportDoArray[9] = itemSkuWarehouseExportDo.getCountWarehouse().toString();
                         exports.add(itemSkuWarehouseExportDoArray);
                     }
@@ -68,7 +65,7 @@ public class ExportExcelTest {
             }
 
             @Override
-            public String initSheetName() {
+            public String initFileName() {
                 return "库存列表";
             }
 
