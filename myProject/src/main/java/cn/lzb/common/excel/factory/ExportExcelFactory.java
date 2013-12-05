@@ -1,5 +1,6 @@
-package com.hqb360.common.excel;
+package cn.lzb.common.excel.factory;
 
+import cn.lzb.common.lang.StringUtil;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
 
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 功能描述：创建生成Excel工厂
+ * 功能描述：创建生成Excel文件工厂
  *
  * @author: Zhenbin.Li
  * email： zhenbin.li@okhqb.com
@@ -49,9 +50,95 @@ public class ExportExcelFactory {
      * 默认构造方法
      */
     public ExportExcelFactory(String sheetName) {
-        this.sheetName = sheetName;
+        if (StringUtil.isNotBlank(sheetName)) {
+            this.sheetName = sheetName;
+        } else {
+            this.sheetName = "sheet";
+        }
         workbook = new HSSFWorkbook();
         sheet = workbook.createSheet(getSheetName());
+    }
+
+    /**
+     * 创建合并Excel列列表的主体数据
+     *
+     * @param list List(String[][])列表数据
+     */
+    public void createMultipleBody(List<String[][]> list) {
+
+        HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.BLACK.index);
+        HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
+
+        for (String[][] excel : list) {
+            int[][][] spans = ExportExcelUtil.getSpans(excel);
+            for (int i = 0; i < excel.length; i++) {
+                HSSFRow row = sheet.createRow(currentRow);
+                for (int j = 0; j < excel[i].length; j++) {
+                    ExportExcelUtil.createCell(row, j, style, excel[i][j]);
+                    if (excel[i][j] != null) {
+                        ExportExcelUtil.mergeRegion(
+                                sheet, currentRow, j, currentRow + spans[i][j][0] - 1, j + spans[i][j][1] - 1);
+                    }
+                }
+                currentRow++;
+            }
+        }
+    }
+
+    /**
+     * 创建列表的主体数据
+     *
+     * @param list List(String[])列表数据
+     */
+    public void createBody(List<String[]> list) {
+
+        HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.BLACK.index);
+        HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
+
+        for (int index = 0; index < list.size(); index++) {
+            HSSFRow row = sheet.createRow(currentRow);
+            String[] stringArray = list.get(index);
+            for (int j = 0; j < stringArray.length; j++) {
+                ExportExcelUtil.createCell(row, j, style, stringArray[j]);
+            }
+            currentRow++;
+        }
+    }
+
+    /**
+     * 创建列表的主体数据，包含单元格颜色样式
+     *
+     * @param list  List(String[])列表数据
+     * @param color 单元格颜色样式
+     */
+    public void createBodyColor(List<String[]> list, Map<Integer, String> color) {
+
+        HSSFFont font_black = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.BLACK.index);
+        HSSFCellStyle style_black = ExportExcelUtil.getStyle(workbook, font_black, HSSFCellStyle.ALIGN_CENTER);
+        HSSFFont font_red = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.RED.index);
+        HSSFCellStyle style_red = ExportExcelUtil.getStyle(workbook, font_red, HSSFCellStyle.ALIGN_CENTER);
+        HSSFFont font_green = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.GREEN.index);
+        HSSFCellStyle style_green = ExportExcelUtil.getStyle(workbook, font_green, HSSFCellStyle.ALIGN_CENTER);
+
+        for (int index = 0; index < list.size(); index++) {
+            String rowColor = color.get(index);
+            HSSFRow row = sheet.createRow(currentRow);
+            String[] stringArray = list.get(index);
+            for (int j = 0; j < stringArray.length; j++) {
+                if (rowColor != null) {
+                    if (rowColor.equals(ExportFrontColor.RED.getColorCode())) {
+                        ExportExcelUtil.createCell(row, j, style_red, stringArray[j]);
+                    } else if (rowColor.equals(ExportFrontColor.GREEN.getColorCode())) {
+                        ExportExcelUtil.createCell(row, j, style_green, stringArray[j]);
+                    } else {
+                        ExportExcelUtil.createCell(row, j, style_black, stringArray[j]);
+                    }
+                } else {
+                    ExportExcelUtil.createCell(row, j, style_black, stringArray[j]);
+                }
+            }
+            currentRow++;
+        }
     }
 
     /**
@@ -61,6 +148,7 @@ public class ExportExcelFactory {
      */
     @SuppressWarnings("deprecation")
     public void setColumnWidth(int[] columnWidth) {
+
         for (int i = 0; i < columnWidth.length; i++) {
             if (columnWidth[i] != 0) {
                 if (sheet.getColumnWidth((short) i) != (columnWidth[i] * 37.5)) {
@@ -76,6 +164,7 @@ public class ExportExcelFactory {
      * @param cols 列数
      */
     public void setCols(int cols) {
+
         this.totalCols = cols;
     }
 
@@ -85,6 +174,7 @@ public class ExportExcelFactory {
      * @param caption 标题
      */
     public void createCaption(String caption) {
+
         HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_BOLD, HSSFColor.BLACK.index);
         HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
 
@@ -104,6 +194,7 @@ public class ExportExcelFactory {
      * @param colCaption 一行列标题
      */
     public void createColCaption(String[] colCaption) {
+
         HSSFFont font = ExportExcelUtil.getFont(workbook, 0, HSSFFont.BOLDWEIGHT_BOLD, HSSFColor.BLACK.index);
         HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
 
@@ -120,15 +211,16 @@ public class ExportExcelFactory {
      * @param colCaption 多行列标题
      */
     public void createColCaption(String[][] colCaption) {
+
         HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_BOLD, HSSFColor.BLACK.index);
         HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
-        int[][][] spans = getSpans(colCaption);
+        int[][][] spans = ExportExcelUtil.getSpans(colCaption);
 
         for (int i = 0; i < colCaption.length; i++) {
             HSSFRow row = sheet.createRow(currentRow);
             for (int j = 0; j < colCaption[i].length; j++) {
                 ExportExcelUtil.createCell(row, j, style, colCaption[i][j]);
-                if (spans[i][j] != null) {
+                if (colCaption[i][j] != null) {
                     ExportExcelUtil
                             .mergeRegion(sheet, currentRow, j, currentRow + spans[i][j][0] - 1, j + spans[i][j][1] - 1);
                 }
@@ -138,77 +230,12 @@ public class ExportExcelFactory {
     }
 
     /**
-     * 创建EXCEL的主体数据
-     *
-     * @param data 主体数据，可支持的数据格式有：
-     *             1、简单列表 List(String[])；
-     *             2、合并一列 Map(List(String[]))；
-     *             3、合并二列 Map(Map(List(String[]))。
-     */
-    @SuppressWarnings("rawtypes")
-    public void createBody(Object data) {
-        int nestedCount = ExportExcelUtil.getNestedCount(data);
-
-        if (nestedCount == 0) {
-            createBody((List<String[]>) data);
-        } else if (nestedCount == 1) {
-            ExportExcelUtil.createOneMapBody(workbook, sheet, (Map) data, currentRow);
-        } else if (nestedCount == 2) {
-            ExportExcelUtil.createTwoMapBody(workbook, sheet, (Map) data, currentRow);
-        } else {
-            throw new IllegalArgumentException("不支持的数据格式");
-        }
-    }
-
-    /**
-     * 创建列表的主体数据
-     *
-     * @param list List(String[])列表数据
-     */
-    protected void createBody(List<String[]> list) {
-
-        HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.BLACK.index);
-        HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
-
-        for (int index = 0; index < list.size(); index++) {
-            HSSFRow row = sheet.createRow(currentRow);
-            String[] stringArray = list.get(index);
-            for (int j = 0; j < stringArray.length; j++) {
-                ExportExcelUtil.createCell(row, j, style, stringArray[j]);
-            }
-            currentRow++;
-        }
-    }
-
-    /**
-     * 创建EXCEL的主体数据
-     *
-     * @param data 主体数据，可支持的数据格式有：
-     *             1、简单列表 List(String[])；
-     *             2、合并一列 Map(List(String[]))；
-     *             3、合并二列 Map(Map(List(String[]))。
-     */
-    @SuppressWarnings("rawtypes")
-    public void createBody(Object data, Object color) {
-        int nestedCount = ExportExcelUtil.getNestedCount(data);
-
-        if (nestedCount == 0) {
-            ExportExcelUtil.createBodyColor(workbook, sheet, (List) data, (Map) color, currentRow);
-        } else if (nestedCount == 1) {
-            ExportExcelUtil.createOneMapBody(workbook, sheet, (Map) data, currentRow);
-        } else if (nestedCount == 2) {
-            ExportExcelUtil.createTwoMapBody(workbook, sheet, (Map) data, currentRow);
-        } else {
-            throw new IllegalArgumentException("不支持的数据格式");
-        }
-    }
-
-    /**
      * 创建备注信息
      *
      * @param remarks 备注信息
      */
     public void createRemarks(String[] remarks) {
+
         HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.RED.index);
         HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_LEFT);
 
@@ -231,6 +258,7 @@ public class ExportExcelFactory {
      * @param filePath EXCEL文件路径
      */
     public void createFile(String filePath) {
+
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(filePath);
@@ -251,32 +279,8 @@ public class ExportExcelFactory {
      * @throws java.io.IOException
      */
     public void createFile(OutputStream out) throws IOException {
+
         workbook.write(out);
-    }
-
-
-    /**
-     * 根据多行报表标题获得一个合并的行列信息
-     *
-     * @param colTitles 列标题
-     * @return 报表标题合并的行列信息：第一维对应标题的行，第二维对应标题的列，
-     *         第三维对应标题的合并行和列，已经被合并的行或列则对应的第三维为null。
-     */
-    public static int[][][] getSpans(String[][] colTitles) {
-        int[][][] spans = new int[colTitles.length][][];
-
-        for (int i = 0; i < colTitles.length; i++) {
-            spans[i] = new int[colTitles[i].length][];
-            for (int j = 0; j < colTitles[i].length; j++) {
-                if (colTitles[i][j] != null) {
-                    spans[i][j] = new int[2];
-                    spans[i][j][0] = ExportExcelUtil.getRowSpan(colTitles, i, j);
-                    spans[i][j][1] = ExportExcelUtil.getColSpan(colTitles, i, j);
-                }
-            }
-        }
-
-        return spans;
     }
 
     /**
@@ -285,6 +289,7 @@ public class ExportExcelFactory {
      * @return
      */
     public String getSheetName() {
+
         return sheetName;
     }
 }
