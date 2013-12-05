@@ -15,7 +15,7 @@ import java.util.Map;
 public class ExportExcelContext<T> {
 
     /**
-     * 生成Excel文件对象List
+     * 生成Excel文件对象集合
      */
     private List<T> exports;
 

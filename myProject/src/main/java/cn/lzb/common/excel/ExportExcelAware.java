@@ -14,16 +14,9 @@ public interface ExportExcelAware<T> {
     /**
      * 初始化导出生成Excel文件上下文
      *
-     * @param exportContext
+     * @param exportContext 创建生成Excel文件上下文
      */
     public void init(ExportExcelContext<T> exportContext);
-
-    /**
-     * 校验导出生成Excel文件上下文
-     *
-     * @param exportContext
-     */
-    public void doValidContext(ExportExcelContext<T> exportContext);
 
     /**
      * 创建生成Excel文件

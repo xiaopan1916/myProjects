@@ -9,7 +9,6 @@ import java.util.List;
  * Date: 11-9-21
  * Time: 上午9:20
  */
-@Deprecated
 public interface Constants {
 
     String[] EMPTY_ARRAY_STRING = new String[0];

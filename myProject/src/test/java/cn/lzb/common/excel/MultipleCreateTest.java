@@ -2,13 +2,16 @@ package cn.lzb.common.excel;
 
 import cn.lzb.common.excel.enity.MultipleEntity;
 import cn.lzb.common.excel.enity.Subject;
+import cn.lzb.common.excel.factory.ExportFrontColor;
 import cn.lzb.common.excel.impl.CommonExportExcelImpl;
 import cn.lzb.common.excel.impl.MultipartExportExcelAdapter;
 import cn.lzb.common.lang.CollectionUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 功能描述：复杂表格创建测试类，主要包含列合并单元格
@@ -45,13 +48,13 @@ public class MultipleCreateTest {
     private List<MultipleEntity> getMultipleEntities() {
 
         List<MultipleEntity> multipleEntities = Lists.newArrayList();
-        for (int i = 1; i < 10000; i++) {
+        for (int i = 1; i < 10; i++) {
             MultipleEntity multipleEntity = new MultipleEntity();
             multipleEntity.setUserId(i);
             multipleEntity.setUserName("okhqb_" + i);
             multipleEntity.setAddress("www.okhqb.com_" + i);
             multipleEntity.setTel("136351462" + i);
-            multipleEntity.setMemo("一颗爱你的心 + " + i);
+            multipleEntity.setMemo("测试数据_ + " + i);
             multipleEntity.setScore(80 + i);
 
             List<Subject> subjects = Lists.newArrayList();
@@ -110,22 +113,25 @@ public class MultipleCreateTest {
             public void init(ExportExcelContext<MultipleEntity> exportContext) {
 
                 exportContext.setExports(multipleEntities);
-                String[][] colTitles = {
-                        {"学号", "姓名", "地址", "手机号码", "课程编号", "课程名称", "分数", "综合评分", "备注"},
-                        {null, null, null, null, "课程编号", "课程名称", null, "综合评分", "备注"}
-                };
+                String[][] colTitles = {{"学号", "姓名", "地址", "手机号码", "课程编号", "课程名称", "综合评分", "分数", "备注"}};
                 exportContext.setColTitles(colTitles);
                 exportContext.setFileName("测试创建生成Excel合并单元格表格");
-                exportContext.setFilePath("E:\\Users\\");
+                exportContext.setFilePath("E:\\");
                 exportContext.setSheetName("表格2");
                 exportContext.setTitle("测试合并列表格");
                 int[] colWidths = {100, 100, 100, 100, 100, 100, 100, 100, 100};
                 exportContext.setColumnWidths(colWidths);
+
+                Map<Integer, String> map = Maps.newHashMap();
+                map.put(0, ExportFrontColor.RED.getColorCode());
+                map.put(1, ExportFrontColor.GREEN.getColorCode());
+                map.put(2, ExportFrontColor.RED.getColorCode());
+                exportContext.setRowColors(map);
             }
         });
     }
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         MultipleCreateTest.getInstance().doCreate();
     }
 }

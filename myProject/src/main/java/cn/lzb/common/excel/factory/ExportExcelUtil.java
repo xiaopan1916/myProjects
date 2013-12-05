@@ -2,7 +2,9 @@ package cn.lzb.common.excel.factory;
 
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.hssf.util.Region;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,7 +17,6 @@ import java.io.OutputStream;
  * company：华强北在线
  * Date: 13-11-19 Time：下午12:48
  */
-@SuppressWarnings("deprecation")
 public class ExportExcelUtil {
 
     /**
@@ -52,9 +53,8 @@ public class ExportExcelUtil {
      * @param style 单元格样式
      * @param value 单元格的值
      */
-	public static void createCell(HSSFRow row, int index, HSSFCellStyle style, String value) {
-
-        HSSFCell cell = row.createCell((short) index);
+    public static void createCell(XSSFRow row, int index, XSSFCellStyle style, String value) {
+        XSSFCell cell = row.createCell((short) index);
         cell.setCellStyle(style);
         cell.setCellValue(value);
     }
@@ -67,9 +67,8 @@ public class ExportExcelUtil {
      * @param endRow   结束行（从0开始）
      * @param col      列位置（从0开始）
      */
-	public static void mergeRow(HSSFSheet sheet, int startRow, int endRow, int col) {
-
-        sheet.addMergedRegion(new Region(startRow, (short) col, endRow, (short) col));
+    public static void mergeRow(HSSFSheet sheet, int startRow, int endRow, int col) {
+        sheet.addMergedRegion(new CellRangeAddress(startRow, col, endRow, col));
     }
 
     /**
@@ -80,9 +79,8 @@ public class ExportExcelUtil {
      * @param endCol   结束列（从0开始）
      * @param row      行位置（从0开始）
      */
-	public static void mergeCol(HSSFSheet sheet, int startCol, int endCol, int row) {
-
-        sheet.addMergedRegion(new Region(row, (short) startCol, row, (short) endCol));
+    public static void mergeCol(XSSFSheet sheet, int startCol, int endCol, int row) {
+        sheet.addMergedRegion(new CellRangeAddress(row, startCol, row, endCol));
     }
 
     /**
@@ -94,9 +92,8 @@ public class ExportExcelUtil {
      * @param endRow   结束行（从0开始）
      * @param endCol   结束列（从0开始）
      */
-	public static void mergeRegion(HSSFSheet sheet, int startRow, int startCol, int endRow, int endCol) {
-
-        sheet.addMergedRegion(new Region(startRow, (short) startCol, endRow, (short) endCol));
+    public static void mergeRegion(XSSFSheet sheet, int startRow, int startCol, int endRow, int endCol) {
+        sheet.addMergedRegion(new CellRangeAddress(startRow, endRow, startCol,  endCol));
     }
 
     /**
@@ -105,7 +102,6 @@ public class ExportExcelUtil {
      * @param out 输出流
      */
     public static void closeOutputStream(OutputStream out) {
-
         if (out != null) {
             try {
                 out.close();
@@ -123,9 +119,8 @@ public class ExportExcelUtil {
      * @param color      字体颜色
      * @return 字体对象
      */
-    public static HSSFFont getFont(HSSFWorkbook workbook, int fontHeight, short boldweight, short color) {
-
-        HSSFFont font = workbook.createFont();
+    public static XSSFFont getFont(XSSFWorkbook workbook, int fontHeight, short boldweight, short color) {
+        XSSFFont font = workbook.createFont();
         font.setFontHeightInPoints((short) fontHeight);
         font.setFontName("新宋体");
         font.setColor(color);
@@ -140,22 +135,22 @@ public class ExportExcelUtil {
      * @param align 对其方式
      * @return 单元格样式
      */
-    public static HSSFCellStyle getStyle(HSSFWorkbook workbook, HSSFFont font, short align) {
-
-        HSSFCellStyle style = workbook.createCellStyle();
+    public static XSSFCellStyle getStyle(XSSFWorkbook workbook, XSSFFont font, short align) {
+        XSSFCellStyle style = workbook.createCellStyle();
         style.setFont(font);
+
         //边框
-        style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-        style.setBottomBorderColor(HSSFColor.BLACK.index);
-        style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
-        style.setLeftBorderColor(HSSFColor.BLACK.index);
-        style.setBorderRight(HSSFCellStyle.BORDER_THIN);
-        style.setRightBorderColor(HSSFColor.BLACK.index);
-        style.setBorderTop(HSSFCellStyle.BORDER_THIN);
-        style.setTopBorderColor(HSSFColor.BLACK.index);
+        style.setBorderBottom(XSSFCellStyle.BORDER_THIN);
+        style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderLeft(XSSFCellStyle.BORDER_THIN);
+        style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderRight(XSSFCellStyle.BORDER_THIN);
+        style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderTop(XSSFCellStyle.BORDER_THIN);
+        style.setTopBorderColor(IndexedColors.BLACK.getIndex());
         //对齐方式
         style.setAlignment(align);
-        style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
+        style.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER);
         return style;
     }
 
@@ -168,7 +163,6 @@ public class ExportExcelUtil {
      * @return 行跨度
      */
     public static int getRowSpan(String[][] colTitles, int row, int col) {
-
         int rowSpan = 1;
         if (colTitles[row][col] != null) {
             for (int i = row + 1; i < colTitles.length; i++) {
@@ -191,7 +185,6 @@ public class ExportExcelUtil {
      * @return 列跨度
      */
     public static int getColSpan(String[][] colTitles, int row, int col) {
-
         int colSpan = 1;
         if (colTitles[row][col] != null) {
             for (int i = col; i < colTitles[row].length; i++) {

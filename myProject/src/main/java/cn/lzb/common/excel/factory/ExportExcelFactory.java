@@ -1,8 +1,9 @@
 package cn.lzb.common.excel.factory;
 
+import cn.lzb.common.lang.CollectionUtil;
 import cn.lzb.common.lang.StringUtil;
-import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -24,12 +25,12 @@ public class ExportExcelFactory {
     /**
      * 工作薄
      */
-    private HSSFWorkbook workbook;
+    private XSSFWorkbook workbook;
 
     /**
      * 工作表
      */
-    private HSSFSheet sheet;
+    private XSSFSheet sheet;
 
     /**
      * 当前行数
@@ -50,12 +51,13 @@ public class ExportExcelFactory {
      * 默认构造方法
      */
     public ExportExcelFactory(String sheetName) {
+
         if (StringUtil.isNotBlank(sheetName)) {
             this.sheetName = sheetName;
         } else {
             this.sheetName = "sheet";
         }
-        workbook = new HSSFWorkbook();
+        workbook = new XSSFWorkbook();
         sheet = workbook.createSheet(getSheetName());
     }
 
@@ -66,15 +68,73 @@ public class ExportExcelFactory {
      */
     public void createMultipleBody(List<String[][]> list) {
 
-        HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.BLACK.index);
-        HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
+        if (CollectionUtil.isEmpty(list)) {
+            return;
+        }
+
+        XSSFFont font = ExportExcelUtil.getFont(workbook, 10, XSSFFont.BOLDWEIGHT_NORMAL, IndexedColors.BLACK.getIndex());
+        XSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, XSSFCellStyle.ALIGN_CENTER);
 
         for (String[][] excel : list) {
             int[][][] spans = ExportExcelUtil.getSpans(excel);
             for (int i = 0; i < excel.length; i++) {
-                HSSFRow row = sheet.createRow(currentRow);
+                XSSFRow row = sheet.createRow(currentRow);
                 for (int j = 0; j < excel[i].length; j++) {
                     ExportExcelUtil.createCell(row, j, style, excel[i][j]);
+                    if (excel[i][j] != null) {
+                        ExportExcelUtil.mergeRegion(
+                                sheet, currentRow, j, currentRow + spans[i][j][0] - 1, j + spans[i][j][1] - 1);
+                    }
+                }
+                currentRow++;
+            }
+        }
+    }
+
+    /**
+     * 创建合并Excel列列表的主体数据
+     *
+     * @param list
+     * @param color
+     */
+    public void createMultipleBody(List<String[][]> list, Map<Integer, String> color) {
+
+        if (CollectionUtil.isEmpty(list)) {
+            return;
+        }
+
+        XSSFFont font_black = ExportExcelUtil
+                .getFont(workbook, 10, XSSFFont.BOLDWEIGHT_NORMAL, IndexedColors.BLACK.getIndex());
+        XSSFCellStyle style_black = ExportExcelUtil
+                .getStyle(workbook, font_black, XSSFCellStyle.ALIGN_CENTER);
+        XSSFFont font_red = ExportExcelUtil
+                .getFont(workbook, 10, XSSFFont.BOLDWEIGHT_NORMAL, IndexedColors.RED.getIndex());
+        XSSFCellStyle style_red = ExportExcelUtil
+                .getStyle(workbook, font_red, XSSFCellStyle.ALIGN_CENTER);
+        XSSFFont font_green = ExportExcelUtil
+                .getFont(workbook, 10, XSSFFont.BOLDWEIGHT_NORMAL, IndexedColors.GREEN.getIndex());
+        XSSFCellStyle style_green = ExportExcelUtil
+                .getStyle(workbook, font_green, XSSFCellStyle.ALIGN_CENTER);
+
+        for (int index = 0; index < list.size(); index++) {
+            String rowColor = color.get(index);
+            String[][] excel = list.get(index);
+            int[][][] spans = ExportExcelUtil.getSpans(excel);
+            for (int i = 0; i < excel.length; i++) {
+                XSSFRow row = sheet.createRow(currentRow);
+                for (int j = 0; j < excel[i].length; j++) {
+                    if (rowColor != null) {
+                        if (rowColor.equals(ExportFrontColor.RED.getColorCode())) {
+                            ExportExcelUtil.createCell(row, j, style_red, excel[i][j]);
+                        } else if (rowColor.equals(ExportFrontColor.GREEN.getColorCode())) {
+                            ExportExcelUtil.createCell(row, j, style_green, excel[i][j]);
+                        } else {
+                            ExportExcelUtil.createCell(row, j, style_black, excel[i][j]);
+                        }
+                    } else {
+                        ExportExcelUtil.createCell(row, j, style_black, excel[i][j]);
+                    }
+
                     if (excel[i][j] != null) {
                         ExportExcelUtil.mergeRegion(
                                 sheet, currentRow, j, currentRow + spans[i][j][0] - 1, j + spans[i][j][1] - 1);
@@ -92,11 +152,15 @@ public class ExportExcelFactory {
      */
     public void createBody(List<String[]> list) {
 
-        HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.BLACK.index);
-        HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
+        if (CollectionUtil.isEmpty(list)) {
+            return;
+        }
+
+        XSSFFont font = ExportExcelUtil.getFont(workbook, 10, XSSFFont.BOLDWEIGHT_NORMAL, IndexedColors.BLACK.getIndex());
+        XSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, XSSFCellStyle.ALIGN_CENTER);
 
         for (int index = 0; index < list.size(); index++) {
-            HSSFRow row = sheet.createRow(currentRow);
+            XSSFRow row = sheet.createRow(currentRow);
             String[] stringArray = list.get(index);
             for (int j = 0; j < stringArray.length; j++) {
                 ExportExcelUtil.createCell(row, j, style, stringArray[j]);
@@ -113,16 +177,26 @@ public class ExportExcelFactory {
      */
     public void createBodyColor(List<String[]> list, Map<Integer, String> color) {
 
-        HSSFFont font_black = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.BLACK.index);
-        HSSFCellStyle style_black = ExportExcelUtil.getStyle(workbook, font_black, HSSFCellStyle.ALIGN_CENTER);
-        HSSFFont font_red = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.RED.index);
-        HSSFCellStyle style_red = ExportExcelUtil.getStyle(workbook, font_red, HSSFCellStyle.ALIGN_CENTER);
-        HSSFFont font_green = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.GREEN.index);
-        HSSFCellStyle style_green = ExportExcelUtil.getStyle(workbook, font_green, HSSFCellStyle.ALIGN_CENTER);
+        if (CollectionUtil.isEmpty(list)) {
+            return;
+        }
+
+        XSSFFont font_black = ExportExcelUtil
+                .getFont(workbook, 10, XSSFFont.BOLDWEIGHT_NORMAL, IndexedColors.BLACK.getIndex());
+        XSSFCellStyle style_black = ExportExcelUtil
+                .getStyle(workbook, font_black, XSSFCellStyle.ALIGN_CENTER);
+        XSSFFont font_red = ExportExcelUtil
+                .getFont(workbook, 10, XSSFFont.BOLDWEIGHT_NORMAL, IndexedColors.RED.getIndex());
+        XSSFCellStyle style_red = ExportExcelUtil
+                .getStyle(workbook, font_red, XSSFCellStyle.ALIGN_CENTER);
+        XSSFFont font_green = ExportExcelUtil
+                .getFont(workbook, 10, XSSFFont.BOLDWEIGHT_NORMAL, IndexedColors.GREEN.getIndex());
+        XSSFCellStyle style_green = ExportExcelUtil
+                .getStyle(workbook, font_green, XSSFCellStyle.ALIGN_CENTER);
 
         for (int index = 0; index < list.size(); index++) {
             String rowColor = color.get(index);
-            HSSFRow row = sheet.createRow(currentRow);
+            XSSFRow row = sheet.createRow(currentRow);
             String[] stringArray = list.get(index);
             for (int j = 0; j < stringArray.length; j++) {
                 if (rowColor != null) {
@@ -146,7 +220,6 @@ public class ExportExcelFactory {
      *
      * @param columnWidth 列宽信息
      */
-    @SuppressWarnings("deprecation")
     public void setColumnWidth(int[] columnWidth) {
 
         for (int i = 0; i < columnWidth.length; i++) {
@@ -164,7 +237,6 @@ public class ExportExcelFactory {
      * @param cols 列数
      */
     public void setCols(int cols) {
-
         this.totalCols = cols;
     }
 
@@ -175,10 +247,10 @@ public class ExportExcelFactory {
      */
     public void createCaption(String caption) {
 
-        HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_BOLD, HSSFColor.BLACK.index);
-        HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
+        XSSFFont font = ExportExcelUtil.getFont(workbook, 10, XSSFFont.BOLDWEIGHT_BOLD, IndexedColors.BLACK.getIndex());
+        XSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, XSSFCellStyle.ALIGN_CENTER);
 
-        HSSFRow row = sheet.createRow(currentRow);
+        XSSFRow row = sheet.createRow(currentRow);
         ExportExcelUtil.createCell(row, 0, style, caption);
         for (int i = 1; i < totalCols; i++) {
             ExportExcelUtil.createCell(row, i, style, "");
@@ -195,10 +267,10 @@ public class ExportExcelFactory {
      */
     public void createColCaption(String[] colCaption) {
 
-        HSSFFont font = ExportExcelUtil.getFont(workbook, 0, HSSFFont.BOLDWEIGHT_BOLD, HSSFColor.BLACK.index);
-        HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
+        XSSFFont font = ExportExcelUtil.getFont(workbook, 0, XSSFFont.BOLDWEIGHT_BOLD, IndexedColors.BLACK.getIndex());
+        XSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, XSSFCellStyle.ALIGN_CENTER);
 
-        HSSFRow row = sheet.createRow(currentRow);
+        XSSFRow row = sheet.createRow(currentRow);
         for (int i = 0; i < colCaption.length; i++) {
             ExportExcelUtil.createCell(row, i, style, colCaption[i]);
         }
@@ -212,12 +284,12 @@ public class ExportExcelFactory {
      */
     public void createColCaption(String[][] colCaption) {
 
-        HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_BOLD, HSSFColor.BLACK.index);
-        HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_CENTER);
+        XSSFFont font = ExportExcelUtil.getFont(workbook, 10, XSSFFont.BOLDWEIGHT_BOLD, IndexedColors.BLACK.getIndex());
+        XSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, XSSFCellStyle.ALIGN_CENTER);
         int[][][] spans = ExportExcelUtil.getSpans(colCaption);
 
         for (int i = 0; i < colCaption.length; i++) {
-            HSSFRow row = sheet.createRow(currentRow);
+            XSSFRow row = sheet.createRow(currentRow);
             for (int j = 0; j < colCaption[i].length; j++) {
                 ExportExcelUtil.createCell(row, j, style, colCaption[i][j]);
                 if (colCaption[i][j] != null) {
@@ -236,11 +308,11 @@ public class ExportExcelFactory {
      */
     public void createRemarks(String[] remarks) {
 
-        HSSFFont font = ExportExcelUtil.getFont(workbook, 10, HSSFFont.BOLDWEIGHT_NORMAL, HSSFColor.RED.index);
-        HSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, HSSFCellStyle.ALIGN_LEFT);
+        XSSFFont font = ExportExcelUtil.getFont(workbook, 10, XSSFFont.BOLDWEIGHT_NORMAL, IndexedColors.RED.getIndex());
+        XSSFCellStyle style = ExportExcelUtil.getStyle(workbook, font, XSSFCellStyle.ALIGN_LEFT);
 
         for (int i = 0; i < remarks.length; i++) {
-            HSSFRow row = sheet.createRow(currentRow);
+            XSSFRow row = sheet.createRow(currentRow);
             ExportExcelUtil.createCell(row, 0, style, remarks[i]);
 
             for (int j = 1; j < totalCols; j++) {
@@ -279,7 +351,6 @@ public class ExportExcelFactory {
      * @throws java.io.IOException
      */
     public void createFile(OutputStream out) throws IOException {
-
         workbook.write(out);
     }
 
@@ -289,7 +360,6 @@ public class ExportExcelFactory {
      * @return
      */
     public String getSheetName() {
-
         return sheetName;
     }
 }

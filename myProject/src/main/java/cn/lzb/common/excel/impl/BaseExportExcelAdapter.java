@@ -1,12 +1,17 @@
 package cn.lzb.common.excel.impl;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+
+import javax.servlet.http.HttpServletResponse;
+
 import cn.lzb.common.excel.ExportExcelAware;
 import cn.lzb.common.excel.ExportExcelContext;
 import cn.lzb.common.excel.factory.ExportExcelFactory;
 import cn.lzb.common.lang.ArrayUtil;
+import cn.lzb.common.lang.DateUtil;
 import cn.lzb.common.lang.StringUtil;
-
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 功能描述：导出生成Excel文件基本Adapter
@@ -31,6 +36,11 @@ public abstract class BaseExportExcelAdapter<T> implements ExportExcelAware<T> {
     protected static final String RESOURCE_CONTENT_TYPE = "application/octet-stream;charset=UTF-8";
 
     /**
+     * 文件扩展名
+     */
+    protected static final String FILE_EXTENSION = ".xlsx";
+
+    /**
      * 生成Excel文件上下文
      */
     protected ExportExcelContext<T> exportExcelContext = new ExportExcelContext<T>();
@@ -44,13 +54,10 @@ public abstract class BaseExportExcelAdapter<T> implements ExportExcelAware<T> {
      * 构造方法，初始化导出文件上线问
      */
     public BaseExportExcelAdapter() {
-
         // 初始化上下文参数
         init(exportExcelContext);
-
         // 验证上下文参数
         doValidContext(exportExcelContext);
-
         // 创建生产Excel文件工厂
         exportExcelFactory = new ExportExcelFactory(exportExcelContext.getSheetName());
     }
@@ -63,13 +70,114 @@ public abstract class BaseExportExcelAdapter<T> implements ExportExcelAware<T> {
     public abstract void init(ExportExcelContext<T> exportContext);
 
     /**
-     * 校验上下文参数
-     *
-     * @param exportContext
+     * 创建生成文件
      */
-    @Override
-    public void doValidContext(ExportExcelContext<T> exportContext) {
+    public abstract void create();
 
+    /**
+     * 处理Excel文件数据
+     */
+    protected void handleBodyData() {
+    }
+
+    /**
+     * 处理列标题列头标题
+     */
+    protected void handleColTitle() {
+        // 列头标长度
+        exportExcelFactory.setCols(getColumnSize());
+        // 表格标题
+        String title = exportExcelContext.getTitle();
+        if (StringUtil.isNotBlank(title)) {
+            // 表格名称
+            StringBuffer titleBuffer = new StringBuffer();
+            titleBuffer.append(title).append("(导出时间：").append(DateUtil.formatDateTime()).append(")");
+            exportExcelFactory.createCaption(titleBuffer.toString());
+        }
+        // 列
+        exportExcelFactory.createColCaption(exportExcelContext.getColTitles());
+    }
+
+    /**
+     * 处理单元格的列宽度
+     */
+    protected void handleColumnWidth() {
+        int[] columnWidths = exportExcelContext.getColumnWidths();
+        if (ArrayUtil.isNotEmpty(columnWidths)) {
+            exportExcelFactory.setColumnWidth(columnWidths);
+        }
+    }
+
+    /**
+     * 处理备注信息
+     */
+    protected void handleRemark() {
+        String[] remarks = exportExcelContext.getRemarks();
+        if (ArrayUtil.isNotEmpty(remarks)) {
+            exportExcelFactory.createRemarks(remarks);
+        }
+    }
+
+    /**
+     * 获取Excel表格宽度
+     *
+     * @return
+     */
+    protected int getColumnSize() {
+        return exportExcelContext.getColTitles()[0].length;
+    }
+
+    /**
+     * 执行创建Excel文件
+     * <p/>
+     * <p>HttpServletResponse为空使用FileOutputStream创建文件</p>
+     */
+    protected void write() {
+        // 生成文件名称
+        StringBuffer fileName = new StringBuffer();
+        // 写文件
+        if (exportExcelContext.getHttpServletResponse() != null) {
+
+            try {
+                fileName.append(new String(exportExcelContext.getFileName().getBytes("GBK"), "ISO-8859-1"))
+                        .append(FILE_EXTENSION);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException("Encoding创建Excel文件名称异常, fileName=" + fileName, e);
+            }
+
+            HttpServletResponse response = exportExcelContext.getHttpServletResponse();
+            response.reset();
+
+            // 写入下载响应头信息
+            OutputStream os = null;
+            writeDownloadResHeader(fileName.toString(), response);
+            try {
+                os = response.getOutputStream();
+                exportExcelFactory.createFile(response.getOutputStream());
+            } catch (IOException e) {
+                throw new RuntimeException("导出Excel业务， 生成Excel文件异常", e);
+            } finally {
+                if (os != null) {
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                    }
+                }
+            }
+        } else {
+            // 直接创建生成文件
+            fileName.append(exportExcelContext.getFilePath())
+                    .append(exportExcelContext.getFileName()).append(FILE_EXTENSION);
+            exportExcelFactory.createFile(fileName.toString());
+        }
+    }
+
+    /**
+     * 校验创建生成Excel文件上下文参数
+     *
+     * @param exportContext`创建生成Excel文件上下文
+     */
+    protected void doValidContext(ExportExcelContext<T> exportContext) {
         if (StringUtil.isBlank(exportContext.getFileName())) {
             throw new RuntimeException("生成Excel文件名称为空");
         }
@@ -81,21 +189,6 @@ public abstract class BaseExportExcelAdapter<T> implements ExportExcelAware<T> {
             throw new RuntimeException(
                     "HttpServletResponse与filePath不能同时为空，HttpServletResponse为空时filePath不能为空");
         }
-    }
-
-    /**
-     * 创建生成文件
-     */
-    public abstract void create();
-
-    /**
-     * 获取Excel表格宽度
-     *
-     * @return
-     */
-    public int getColumnSize() {
-
-        return exportExcelContext.getColTitles()[0].length;
     }
 
     /**
