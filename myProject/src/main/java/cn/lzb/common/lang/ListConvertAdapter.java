@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 /**
- * 功能描述：List转换获取参数值适配器
+ * 功能描述：List转换获取参数值适配器实现
  *
  * @author: Zhenbin.Li
  * email： zhenbin.li@okhqb.com
