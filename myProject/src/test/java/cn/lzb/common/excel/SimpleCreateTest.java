@@ -48,13 +48,13 @@ public class SimpleCreateTest {
     private List<SimpleEntity> getSimpleEntities() {
 
         List<SimpleEntity> simpleEntities = Lists.newArrayList();
-        for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 30000; i++) {
             SimpleEntity simpleEntity = new SimpleEntity();
             simpleEntity.setUserId(i);
-            simpleEntity.setUserName("okhqb_" + i);
-            simpleEntity.setAddress("www.okhqb.com_" + i);
-            simpleEntity.setTel("136351462" + i);
-            simpleEntity.setMemo("测试数据_ + " + i);
+            simpleEntity.setUserName("okhqeqwewqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqewqewqeb_" + i);
+            simpleEntity.setAddress("www.okhqb.comeqweeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeewqewqeqw_" + i);
+            simpleEntity.setTel("136351462eqwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwweqwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwewqee" + i);
+            simpleEntity.setMemo("测试1232321321312321111111111111111111114214213123123213qwewqewqewqewqewqeqweqweqweqweqwewqeqweqweqeqweqweqweqweqwww数据_ + " + i);
             simpleEntity.setScore(80 + i);
             simpleEntities.add(simpleEntity);
         }

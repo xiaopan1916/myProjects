@@ -31,10 +31,11 @@ public interface ExportExcelFacade {
      * 导出复杂的Excel文件，Excel可以实现行与列之间的单元格合并等
      * <p/>
      * <p>方法默认返回空，需要实现DefaultExportExcelAdapter</p>
+     * <p>MultipartExportExcelAdapter需要计算合并单元格，业务较为复杂，比较耗时</p>
      * <p>简单的生成Excel方式，无单元格合并，单行显示</p>
      *
-     * @param adapter
-     * @param <T>
+     * @param adapter	创建Excel文件抽象实现
+     * @param <T>		Excel文件对应对象
      */
     public <T> void export(MultipartExportExcelAdapter<? super T> adapter);
 

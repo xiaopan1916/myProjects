@@ -26,10 +26,10 @@ public abstract class MultipartExportExcelAdapter<T> extends BaseExportExcelAdap
      * 构造方法
      */
     public MultipartExportExcelAdapter() {
-        synchronized (this) {
-            handleExportData(exportExcelContext.getExports(), excelData);
-            create();
-        }
+    	// 处理导出数据
+        handleExportData(exportExcelContext.getExports(), excelData);
+        // 创建
+        create();
     }
 
     /**
