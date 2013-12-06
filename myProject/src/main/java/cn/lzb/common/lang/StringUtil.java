@@ -1637,7 +1637,8 @@ public class StringUtil {
      *
      * @return 分割后的字符串数组，如果原字符串为<code>null</code>，则返回<code>null</code>
      */
-    public static String[] split(String str, char separatorChar) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static String[] split(String str, char separatorChar) {
         if (str == null) {
             return null;
         }
@@ -1722,7 +1723,8 @@ public class StringUtil {
      *
      * @return 分割后的字符串数组，如果原字符串为<code>null</code>，则返回<code>null</code>
      */
-    public static String[] split(String str, String separatorChars, int max) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static String[] split(String str, String separatorChars, int max) {
         if (str == null) {
             return null;
         }
@@ -1939,7 +1941,8 @@ public class StringUtil {
      *
      * @return 连接后的字符串，如果原数组为<code>null</code>，则返回<code>null</code>
      */
-    public static String join(Iterator iterator, char separator) {
+    @SuppressWarnings("rawtypes")
+	public static String join(Iterator iterator, char separator) {
         if (iterator == null) {
             return null;
         }
@@ -1978,7 +1981,8 @@ public class StringUtil {
      *
      * @return 连接后的字符串，如果原数组为<code>null</code>，则返回<code>null</code>
      */
-    public static String join(Iterator iterator, String separator) {
+    @SuppressWarnings("rawtypes")
+	public static String join(Iterator iterator, String separator) {
         if (iterator == null) {
             return null;
         }

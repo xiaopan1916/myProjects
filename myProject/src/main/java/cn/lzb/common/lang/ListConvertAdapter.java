@@ -52,7 +52,8 @@ public class ListConvertAdapter<T, V> {
      * <p>Key：值ID， Value：值ID对应的List集合</p>
      * @return Map
      */
-    public Map<T, List<V>> getKeyElements() {
+    @SuppressWarnings("unchecked")
+	public Map<T, List<V>> getKeyElements() {
 
         Set<T> keys = getUnRepeatElements();
         if (CollectionUtil.isEmpty(keys)) {

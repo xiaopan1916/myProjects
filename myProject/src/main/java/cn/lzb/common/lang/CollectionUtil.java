@@ -1,10 +1,16 @@
 package cn.lzb.common.lang;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * Collection相关的工具方法
@@ -19,8 +25,8 @@ public class CollectionUtil {
      * @param c
      * @return
      */
-    @SuppressWarnings("unchecked")
-    public static final boolean isEmpty(Collection c) {
+    @SuppressWarnings("rawtypes")
+	public static final boolean isEmpty(Collection c) {
         return null == c || 0 == c.size()? true : false;
     }
     
@@ -29,8 +35,8 @@ public class CollectionUtil {
      * 一般用于单元测试
      * @param c
      */
-    @SuppressWarnings("unchecked")
-    public static final void print(Collection c) {
+    @SuppressWarnings("rawtypes")
+	public static final void print(Collection c) {
         if(isEmpty(c)) {
             return;
         }
@@ -44,8 +50,8 @@ public class CollectionUtil {
      * @param list
      * @return String[] ids
      */
-    @SuppressWarnings("unchecked")
-    public static final String[] getIdsFromListToStringArray(List list) {
+    @SuppressWarnings("rawtypes")
+	public static final String[] getIdsFromListToStringArray(List list) {
         if(null == list || 0 == list.size()) {
             return ArrayUtil.EMPTY_STRING_ARRAY;
         }
@@ -71,8 +77,8 @@ public class CollectionUtil {
      * @param list
      * @return Integer[] ids
      */
-    @SuppressWarnings("unchecked")
-    public static final Integer[] getIdsFromListToIntegerArray(List list) {
+    @SuppressWarnings("rawtypes")
+	public static final Integer[] getIdsFromListToIntegerArray(List list) {
         if(null == list || 0 == list.size()) {
             return ArrayUtil.EMPTY_INTEGER_OBJECT_ARRAY;
         }
@@ -98,8 +104,8 @@ public class CollectionUtil {
      * @param list
      * @return Long[] ids
      */
-    @SuppressWarnings("unchecked")
-    public static final Long[] getIdsFromListToLongArray(List list) {
+    @SuppressWarnings("rawtypes")
+	public static final Long[] getIdsFromListToLongArray(List list) {
         if(null == list || 0 == list.size()) {
             return ArrayUtil.EMPTY_LONG_OBJECT_ARRAY;
         }
@@ -126,8 +132,8 @@ public class CollectionUtil {
      * @param list
      * @return
      */
-    @SuppressWarnings("unchecked")
-    public static final String[] toStringArray(List list) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static final String[] toStringArray(List list) {
         if(CollectionUtil.isEmpty(list)) {
             return Constants.EMPTY_ARRAY_STRING;
         }
@@ -140,7 +146,7 @@ public class CollectionUtil {
      * @param list
      * @return
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static final Integer[] toIntegerArray(List list) {
         if(CollectionUtil.isEmpty(list)) {
             return Constants.EMPTY_ARRAY_INTEGER;
@@ -154,7 +160,7 @@ public class CollectionUtil {
      * @param list
      * @return
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static final Long[] toLongArray(List list) {
         if(CollectionUtil.isEmpty(list)) {
             return Constants.EMPTY_ARRAY_LONG;
@@ -168,7 +174,7 @@ public class CollectionUtil {
      * @param set
      * @return
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static final String[] toStringArray(Set set) {
         if(CollectionUtil.isEmpty(set)) {
             return Constants.EMPTY_ARRAY_STRING;
@@ -182,7 +188,7 @@ public class CollectionUtil {
      * @param set
      * @return
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static final Integer[] toIntegerArray(Set set) {
         if(CollectionUtil.isEmpty(set)) {
             return Constants.EMPTY_ARRAY_INTEGER;
@@ -196,7 +202,7 @@ public class CollectionUtil {
      * @param set
      * @return
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static final Long[] toLongArray(Set set) {
         if(CollectionUtil.isEmpty(set)) {
             return Constants.EMPTY_ARRAY_LONG;
@@ -275,7 +281,7 @@ public class CollectionUtil {
     /**
      * 将List中为null的元素删除掉
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public static final List chopList(List list) {
         if(null == list) {
             return null;

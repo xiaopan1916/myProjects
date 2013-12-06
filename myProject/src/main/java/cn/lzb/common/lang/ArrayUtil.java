@@ -1,7 +1,10 @@
 package cn.lzb.common.lang;
 
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 有关数组处理的工具类。
@@ -18,9 +21,6 @@ public class ArrayUtil {
 
     /** 空的<code>Object</code>数组。 */
     public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
-
-    /** 空的<code>Class</code>数组。 */
-    public static final Class[] EMPTY_CLASS_ARRAY = new Class[0];
 
     /** 空的<code>String</code>数组。 */
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
@@ -1072,7 +1072,7 @@ public class ArrayUtil {
             return false;
         }
 
-        Class clazz = array1.getClass();
+        Class<?> clazz = array1.getClass();
 
         if (!clazz.equals(array2.getClass())) {
             return false;
@@ -1341,7 +1341,8 @@ public class ArrayUtil {
      *
      * @return 以数组本身为映射的list
      */
-    public static List toFixedList(Object[] array) {
+    @SuppressWarnings("rawtypes")
+	public static List toFixedList(Object[] array) {
         if (array == null) {
             return null;
         }
@@ -1372,7 +1373,8 @@ public class ArrayUtil {
      *
      * @return 被创建的list
      */
-    public static List toList(Object array) {
+    @SuppressWarnings("rawtypes")
+	public static List toList(Object array) {
         return toList(array, null);
     }
 
@@ -1400,7 +1402,8 @@ public class ArrayUtil {
      *
      * @return 被创建或填充的list
      */
-    public static List toList(Object array, List list) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static List toList(Object array, List list) {
         if (array == null) {
             return list;
         }
@@ -1531,7 +1534,8 @@ public class ArrayUtil {
      *
      * @throws IllegalArgumentException 如果有一个子数组元素个数小于2或不是<code>Map.Entry</code>实例
      */
-    public static Map toMap(Object[] array) {
+    @SuppressWarnings("rawtypes")
+	public static Map toMap(Object[] array) {
         return toMap(array, null);
     }
 
@@ -1559,7 +1563,8 @@ public class ArrayUtil {
      *
      * @throws IllegalArgumentException 如果有一个子数组元素个数小于2或不是<code>Map.Entry</code>实例
      */
-    public static Map toMap(Object[] array, Map map) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Map toMap(Object[] array, Map map) {
         if (array == null) {
             return map;
         }
